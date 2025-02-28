@@ -26,6 +26,26 @@ restaurant_tables = [
     [6,        'o',      'o',      'o',      'o',      'o',      'o']
 ]
 
+def table_capacity(tables):
+    row = tables[0] # Row 1 only
+    row.pop(0) # Remove the first column
+    table_capacity = {}
+    for i, col in enumerate(row):
+        table_capacity[col] = int(col[3])
+    return table_capacity
+
+def get_key_by_val(target, dict):
+    for key, val in dict.items():
+        if target == val:
+            return key
+        
+def available_row_by_key(key, dict): # Return the first row with available seat (using table label)
+    col_index = dict[0].index(key)
+    breakpoint()
+    for row in dict:
+        if row[col_index] == 'o':
+            return row
+
 def print_tables(tables):
     for row in tables:
         for col in row:
@@ -38,9 +58,32 @@ def print_tables(tables):
                 print(col, end = "  ")
                 if col != row[0]: # Check if its not the first column
                     print("  ", end = "  ")
-        print()
+        print() # Print a new line
+        breakpoint()
+    print("\no = open\nx = occupied") # Print a key
+
+def find_fit_tables(table): # Dict = the restaurant table used (restaurant_table or restaurant_table2)
+    party_size = int(input("Party size: "))
+    capacity = table_capacity(table)
+    breakpoint()
+    for cap in capacity.values():
+        if cap >= party_size:
+            key = get_key_by_val(cap, capacity)
+            return key + ' - ' + str(available_row_by_key(key, table))
+
 
 print_tables(restaurant_tables)
+print(find_fit_tables(restaurant_tables))
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -61,5 +104,3 @@ restaurant_tables2 = [
     [5,        'o',      'x',      'o',      'x',      'o',      'o'],
     [6,        'o',      'o',      'o',      'o',      'x',      'o']
 ]
-
-print_tables(restaurant_tables2)
