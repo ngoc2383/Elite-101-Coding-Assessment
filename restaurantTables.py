@@ -26,6 +26,24 @@ restaurant_tables = [
     [6,        'o',      'o',      'o',      'o',      'o',      'o']
 ]
 
+def print_tables(tables):
+    for row in tables:
+        for col in row:
+            if row == restaurant_tables[0]: # Check if its the first row
+                if col == row[0]: # Check if its the first column
+                    print(col, end = "  ")
+                else:
+                    print(col, end = "  ")
+            else: 
+                print(col, end = "  ")
+                if col != row[0]: # Check if its not the first column
+                    print("  ", end = "  ")
+        print()
+
+print_tables(restaurant_tables)
+
+
+
 # ------------------------------------------------------------------------------------
 # This second layout serves as a test case where some tables ('x') are already occupied.
 # Use this for testing your logic to:
@@ -43,3 +61,5 @@ restaurant_tables2 = [
     [5,        'o',      'x',      'o',      'x',      'o',      'o'],
     [6,        'o',      'o',      'o',      'o',      'x',      'o']
 ]
+
+print_tables(restaurant_tables2)
