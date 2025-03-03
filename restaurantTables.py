@@ -26,6 +26,7 @@ restaurant_tables = [
     [6,        'o',      'o',      'o',      'o',      'o',      'o']
 ]
 
+# -------------------------------------------------------------------------------------
 def table_capacity(tables):
     row = tables[0].copy() # A copy of the first row
     row.pop(0) # Remove the first column
@@ -45,7 +46,11 @@ def available_row_by_key(key, dict): # Return the first row with available seat 
         if row[col_index] == 'o': # row[col_index] reference the position of the table in that row
             return row[0] # Return the first column of the row (Row ID/ Label)
 
+# -------------------------------------------------------------------------------------
+
+# LEVEL 1
 def print_tables(tables):
+    print("\n=================================\n") # Divider
     for row in tables:
         for col in row:
             if row == restaurant_tables[0]: # Check if its the first row
@@ -60,18 +65,37 @@ def print_tables(tables):
         print() # Print a new line
     print("\no = open\nx = occupied") # Print a key
 
+# LEVEL 2
 def find_fit_table(table): # table = the restaurant table used (restaurant_table or restaurant_table2)
+    print("\n=================================\n")
     party_size = int(input("Party size: "))
     capacity = table_capacity(table)
     for cap in capacity.values():
         if cap >= party_size:
             key = get_key_by_val(cap, capacity)
-            print(available_row_by_key(key, table))
             return key + ' - ' + str(available_row_by_key(key, table))
+        return "No available table" # Place holder for no available table
 
+# LEVEL 3
+def find_all_fit_table(table): # ALL available tables instead of just 1
+    print("\n=================================\n")
+    party_size = int(input("Party size: "))
+    capacity = table_capacity(table)
+    available_tables = [] # List to store available tables
+    for cap in capacity.values():
+        if cap >= party_size:
+            key = get_key_by_val(cap, capacity)
+            available_tables.append(key + ' - ' + str(available_row_by_key(key, table)))
+    if available_tables:
+        return available_tables
+    return "No available table" # Place holder for no available table
 
-
-
+# LEVEL 4
+def find_fit_table_adjacent(table): # Check if adjacent tables are available
+    print("\n=================================\n")
+    party_size = int(input("Party size: "))
+    capacity = table_capacity(table)
+    pass
 # ------------------------------------------------------------------------------------
 # This second layout serves as a test case where some tables ('x') are already occupied.
 # Use this for testing your logic to:
@@ -91,4 +115,9 @@ restaurant_tables2 = [
 ]
 
 print_tables(restaurant_tables2)
-print(find_fit_table(restaurant_tables2))
+available_tables = find_all_fit_table(restaurant_tables2)
+
+print("\n=================================\n")
+print("Available table: ")
+for table in available_tables:
+    print(" * " + table) # Print table with a space in front
