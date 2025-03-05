@@ -54,7 +54,7 @@ def all_available_row_by_key(key, dict): # Return all the rows with available se
 
 # LEVEL 4
 # Note: Adjacent table are only the tables in the same row
-def find_fit_table_adjacent(layout, party_size): # Check if adjacent tables are available (ONLY use when normal tables cant fit)
+def find_fit_table_adjacent(layout, party_size, available_tables = None): # Check if adjacent tables are available (ONLY use when normal tables cant fit)
     capacity = table_capacity(layout)
     combined_tables = []
     keys = list(capacity.keys())
@@ -62,12 +62,15 @@ def find_fit_table_adjacent(layout, party_size): # Check if adjacent tables are 
     breakpoint()
     for i in range(len(caps) - 1):
         available_rows = all_available_row_by_key(keys[i], layout)
-        breakpoint()
+        if available_tables != None:
+            for table in available_tables:
+                if keys[i] == table[:5]: # if its already available as a individual table
+                    keys.pop(i) # Remove that key 
         for row in available_rows:
             col = layout[0].index(keys[i])
-            col2 = layout[0].index(keys[i+1])
-            if caps[i] + caps[i+1] >= party_size and layout[row][col] == 'o' and layout[row][col2] == 'o':
-                combined_tables.append(f"{keys[i]} - {caps[i]} and {keys[i+1]} - {caps[i]} could seat {caps[i] + caps[i+1]} peoples")
+            if caps[i] + caps[i+1] >= party_size and layout[row][col] == 'o' and layout[row][col + 1] == 'o':
+                combined_tables.append(f"{keys[i]} - {row} and {keys[i+1]} - {row} could seat {caps[i] + caps[i+1]} peoples")
+    print(f"Combined_tables: {combined_tables}")
     return combined_tables
 
 # LEVEL 1
@@ -105,7 +108,10 @@ def find_all_fit_table(layout): # ALL available tables instead of just 1
             available_rows = all_available_row_by_key(key, layout)
             for row in available_rows:
                 available_tables.append(f'{key} - {row}') 
-    adjacent_tables = find_fit_table_adjacent(layout, party_size)
+    if available_tables == []: # If there's no available tables yet
+        adjacent_tables = find_fit_table_adjacent(layout, party_size)
+    else: # if there's already available tables
+        adjacent_tables = find_fit_table_adjacent(layout, party_size, available_tables)
     if available_tables:
         available_tables.extend(adjacent_tables) # Add a list of adjacent tables to the end available table lists 
         return available_tables  # Return a list of available tables
@@ -137,6 +143,7 @@ def print_available_tables(available_tables, layout): # ['T1(2) - 2', 'T2(4) - 1
                 table_ID = table[:5]
                 col = layout[0].index(table_ID)
                 new_layout[row][col] = '-'
+                new_layout[row][col+1] = '-'
             print(new_tables)
     print_layout(new_layout)
     print("* = your option\n- = joined tables") # Additional key for user
