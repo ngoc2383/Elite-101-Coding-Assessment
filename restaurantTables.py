@@ -35,10 +35,6 @@ def table_capacity(tables):
         table_capacity[col] = int(col[3])
     return table_capacity
 
-def get_key_by_val(target, dict):
-    for key, val in dict.items():
-        if target == val:
-            return key
         
 def available_row_by_key(key, dict): # Return the first row with available seat (using table label)
     col_index = dict[0].index(key)
@@ -48,7 +44,6 @@ def available_row_by_key(key, dict): # Return the first row with available seat 
 
 def all_available_row_by_key(key, dict): # Return all the rows with available seat (using table label)
     col_index = dict[0].index(key)
-    breakpoint()
     available_rows = []
     for row in dict:
         if row[col_index] == 'o':
@@ -57,16 +52,31 @@ def all_available_row_by_key(key, dict): # Return all the rows with available se
 
 # -------------------------------------------------------------------------------------
 
+# LEVEL 4
+# Note: Adjacent table are only the tables in the same row
+def find_fit_table_adjacent(layout, party_size): # Check if adjacent tables are available (ONLY use when normal tables cant fit)
+    capacity = table_capacity(layout)
+    combined_tables = []
+    keys = list(capacity.keys())
+    caps = list(capacity.values())
+    breakpoint()
+    for i in range(len(caps) - 1):
+        available_rows = all_available_row_by_key(keys[i], layout)
+        breakpoint()
+        for row in available_rows:
+            col = layout[0].index(keys[i])
+            col2 = layout[0].index(keys[i+1])
+            if caps[i] + caps[i+1] >= party_size and layout[row][col] == 'o' and layout[row][col2] == 'o':
+                combined_tables.append(f"{keys[i]} - {caps[i]} and {keys[i+1]} - {caps[i]} could seat {caps[i] + caps[i+1]} peoples")
+    return combined_tables
+
 # LEVEL 1
-def print_tables(tables):
+def print_layout(layout):
     print("\n=================================\n") # Divider
-    for row in tables:
+    for row in layout:
         for col in row:
             if row == restaurant_tables[0]: # Check if its the first row
-                if col == row[0]: # Check if its the first column
-                    print(col, end = "  ")
-                else:
-                    print(col, end = "  ")
+                print(col, end = "  ") # end = "  " means add 2 space after the varible instead of make a newline
             else: 
                 print(col, end = "  ")
                 if col != row[0]: # Check if its not the first column
@@ -75,47 +85,61 @@ def print_tables(tables):
     print("\no = open\nx = occupied") # Print a key
 
 # LEVEL 2
-def find_fit_table(table): # table = the restaurant table used (restaurant_table or restaurant_table2)
+def find_fit_table(layout): # layout = the restaurant layout used (restaurant_table or restaurant_table2)
     print("\n=================================\n")
-    party_size = int(input("Party size: "))
-    capacity = table_capacity(table)
-    for cap in capacity.values():
+    party_size = int(input("Party size: ")) # Ask user for the party size
+    capacity = table_capacity(layout)
+    for key, cap in capacity:
         if cap >= party_size:
-            key = get_key_by_val(cap, capacity)
-            return key + ' - ' + str(available_row_by_key(key, table))
-        return "No available table" # Place holder for no available table
+            return key + ' - ' + str(available_row_by_key(key, layout))
+        return find_fit_table_adjacent(layout, party_size) # Place holder for no available table
 
-# LEVEL 3 ------ FIX THIS LATER
+# LEVEL 3
 def find_all_fit_table(layout): # ALL available tables instead of just 1
     print("\n=================================\n")
     party_size = int(input("Party size: "))
-    capacity = table_capacity(layout)
-    available_tables = [] # List to store available tables
-    for i, cap in enumerate(capacity.values()):
+    capacity = table_capacity(layout) # {'T1(2)': 2, 'T2(4)': 4, 'T3(2)': 2, 'T4(6)': 6, 'T5(4)': 4, 'T6(2)': 2}
+    available_tables = []  # List to store available tables
+    for key, cap in capacity.items():  # Iterate over key-value pairs, key - capacity.key(), cap - capacity.values()
         if cap >= party_size:
-            key = get_key_by_val(cap, capacity)
-            available_tables.append(key + ' - ' + str(all_available_row_by_key(key, layout))[i])
+            available_rows = all_available_row_by_key(key, layout)
+            for row in available_rows:
+                available_tables.append(f'{key} - {row}') 
+    adjacent_tables = find_fit_table_adjacent(layout, party_size)
     if available_tables:
-        return available_tables
-    return "No available table" # Place holder for no available table
-
-# LEVEL 4
-def find_fit_table_adjacent(table): # Check if adjacent tables are available
-    print("\n=================================\n")
-    party_size = int(input("Party size: "))
-    capacity = table_capacity(table)
-    pass
+        available_tables.extend(adjacent_tables) # Add a list of adjacent tables to the end available table lists 
+        return available_tables  # Return a list of available tables
+    else:
+        return adjacent_tables  # Placeholder for no available table
 
 # FOR FUN
 def print_available_tables(available_tables, layout): # ['T1(2) - 2', 'T2(4) - 1', 'T4(6) - 1']
     new_layout = layout.copy()
     for table in available_tables.copy():
-        row = int(table.split()[-1])
-        table_ID = table[:5] # Only take the ID e.g. T1(2) - 2 ---> T1(2)
-        col = layout[0].index(table_ID)
-        new_layout[row][col] = '*'
-    print_tables(new_layout)
-    print("* = your option") # Additional key for user
+        try: 
+            row = int(table.split()[-1])
+            table_ID = table[:5] # Only take the ID e.g. T1(2) - 2 ---> T1(2)
+            col = layout[0].index(table_ID)
+            new_layout[row][col] = '*'
+        except ValueError:
+            print(table)
+            new_tables = table.split(' ')[:7] # Split the table and only take the first 7 parts of the splitted list 
+            '''
+            example: 
+                table = 'T4(6) - 6 and T5(4) - 6 could seat 10 peoples'
+                splitted_table = ['T4(6)', '-', '6', 'and', 'T5(4)', '-', '6', 'could', 'seat', '10', 'peoples']
+                new_tables = ['T4(6)', '-', '6', 'and', 'T5(4)', '-', '6'] --> only show the [:7] part        
+            '''
+            new_tables = (" ").join(new_tables)
+            new_tables = new_tables.split(' and ')
+            for table2 in new_tables:
+                row = int(table2.split()[-1])
+                table_ID = table[:5]
+                col = layout[0].index(table_ID)
+                new_layout[row][col] = '-'
+            print(new_tables)
+    print_layout(new_layout)
+    print("* = your option\n- = joined tables") # Additional key for user
     print("\n=================================\n")
     
 # ------------------------------------------------------------------------------------
@@ -136,14 +160,13 @@ restaurant_tables2 = [
     [6,        'o',      'o',      'o',      'o',      'x',      'o']
 ]
 
-print_tables(restaurant_tables2)
+print_layout(restaurant_tables2)
 available_tables = find_all_fit_table(restaurant_tables2)
 print()
 print("Available table: ")
-for table in available_tables:
-    if available_tables == "No available table":
-        print(available_tables)
-    else:
+try: 
+    for table in available_tables:
         print(" * " + table) # Print table with a space in front
-
-print_available_tables(available_tables, restaurant_tables2)
+    print_available_tables(available_tables, restaurant_tables2) # Only print out the chart if there's a seat for the customer
+except ValueError:
+    print("\n=================================\n")
