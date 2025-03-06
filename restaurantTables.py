@@ -143,7 +143,7 @@ def print_layout(layout):
 def find_fit_table(layout): # layout = the restaurant layout used (restaurant_table or restaurant_table2)
     print("\n=================================\n")
     party_size = ask_for_party_size() # Ask user for the party size, check edgecase
-    capacity = table_capacity(layout)
+    capacity = table_capacity(layout) # 
     for key, cap in capacity.items():
         if cap >= party_size:
             return key + ' - ' + str(available_row_by_key(key, layout))
@@ -166,13 +166,14 @@ def find_all_fit_table(layout): # ALL available tables instead of just 1
         available_tables.extend(adjacent_tables) # Add a list of adjacent tables to the end available table lists 
         return available_tables  # Return a list of available tables
     else:
-        return "No available tables"  # Return a list of combined tables instead
+        return adjacent_tables # Return a list of combined tables instead
 
 # -------------------------------------------------------------------------------------
 print_layout(restaurant_tables2)
-available_tables = find_fit_table(restaurant_tables2)
+available_tables = find_all_fit_table(restaurant_tables2)
 print() # Blank space for format
 print("Available table: ")
+
 if available_tables == "No available table":
     print(" * " + available_tables)
 else:
