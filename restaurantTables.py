@@ -131,14 +131,11 @@ def find_fit_table_adjacent(layout, party_size):
 # Include formating for aesthetic
 def print_layout(layout):
     print("\n=================================\n") # Divider
-    for row in layout:
+    for row in layout: # Loop through each row
         for col in row:
-            if row == restaurant_tables[0]: # Check if its the first row
-                print(col, end = "  ") # end = "  " means add 2 space after the varible instead of make a newline
-            else: 
-                print(col, end = "  ")
-                if col != row[0]: # Check if its not the first column
-                    print("  ", end = "  ") # Formating to align with the first row
+            print(col, end = "  ") # end = "  " means add 2 space after the varible instead of make a newline
+            if col != row[0] and row != layout[0]: # Check if its not the first column and not the first row
+                print("  ", end = "  ") # Formating to align with the first row
         print() # Print a new line
     print("\no = open\nx = occupied") # Print a key
 
@@ -147,10 +144,10 @@ def find_fit_table(layout): # layout = the restaurant layout used (restaurant_ta
     print("\n=================================\n")
     party_size = ask_for_party_size() # Ask user for the party size, check edgecase
     capacity = table_capacity(layout)
-    for key, cap in capacity:
+    for key, cap in capacity.items():
         if cap >= party_size:
             return key + ' - ' + str(available_row_by_key(key, layout))
-        return find_fit_table_adjacent(layout, party_size) # Place holder for no available table
+    return "No available table" # Place holder for no available table
 
 # LEVEL 3
 def find_all_fit_table(layout): # ALL available tables instead of just 1
@@ -169,17 +166,26 @@ def find_all_fit_table(layout): # ALL available tables instead of just 1
         available_tables.extend(adjacent_tables) # Add a list of adjacent tables to the end available table lists 
         return available_tables  # Return a list of available tables
     else:
-        return adjacent_tables  # Return a list of combined tables instead
+        return "No available tables"  # Return a list of combined tables instead
 
 # -------------------------------------------------------------------------------------
 print_layout(restaurant_tables2)
-available_tables = find_all_fit_table(restaurant_tables2)
+available_tables = find_fit_table(restaurant_tables2)
 print() # Blank space for format
 print("Available table: ")
- 
-for table in available_tables:
-    print(" * " + table) # Print table with a space in front
-new_layout = adjust_the_layout(available_tables, restaurant_tables2) # Only print out the chart if there's a seat for the customer
-print_layout(new_layout)
-print("* = your option\n- = joined tables option") # Additional key for user
+if available_tables == "No available table":
+    print(" * " + available_tables)
+else:
+    if isinstance(available_tables, list):
+        for table in available_tables:
+            print(" * " + table) # Print table with a space in front
+        new_layout = adjust_the_layout(available_tables, restaurant_tables2) # Only print out the chart if there's a seat for the customer
+        print_layout(new_layout)
+        print("* = your option\n- = joined tables option") # Additional key for user
+    else:
+        print(" * " + available_tables)
+
+
+
+
 print("\n=================================\n")
